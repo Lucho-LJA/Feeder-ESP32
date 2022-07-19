@@ -78,7 +78,7 @@ void loop(){
       if (state_msg.data>0){
         if (state_msg.data == 1){
           if (sensor1_state==0){
-            motorDevise.moveMotor(VEL_PWM);
+            motorDevise.moveMotor(setMotor);
           }else{
             motorDevise.stopMotor();
             state_msg.data = 0;
@@ -86,21 +86,21 @@ void loop(){
           }
         }else if (state_msg.data == 2){
             if (sensor1_state==0){
-              motorDevise.backMotor(VEL_PWM);
+              motorDevise.backMotor(setMotor);
             }else{
               motorDevise.stopMotor();
               state_msg.data = 0;
               sensor1_state=0;
             }
         }else if (state_msg.data == 3 || state_msg.data == 4){
-          if (sensor1_state==0 && state_msg.data == 3){
-            motorDevise.stopMotor();
+          if (sensor1_state==0 && state_msg.data == 3 && sensor2_state == 0){
+            motorDevise.moveMotor(setMotor);
           }
           if (sensor1_state==1 && state_msg.data == 3 && sensor2_state == 1){
             motorDevise.stopMotor();
             state_msg.data = 4;
           }
-          if (sensor1_state == 1 && state_msg.data == 3 && sensor2_state == 0 ){
+          if (sensor1_state == 1 && state_msg.data == 4 && sensor2_state == 0 ){
             sensor1_state == 0;
             state_msg.data = 3;
           }
@@ -114,9 +114,9 @@ void loop(){
       pDeviseState.publish( &state_msg);
       if (state_msg.data>0 && state_msg.data != 3){
         if (state_msg.data == 1){
-          motorDevise.moveMotor(VEL_PWM);
+          motorDevise.moveMotor(setMotor);
         }else if (state_msg.data == 2){
-          motorDevise.backMotor(VEL_PWM);
+          motorDevise.backMotor(setMotor);
         }
       }else{
         motorDevise.stopMotor();
