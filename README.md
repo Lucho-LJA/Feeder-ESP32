@@ -6,7 +6,9 @@ The code is used to cominicate with ROS using rosserial_python with ROS distro: 
 
 Feeder have the types:
 - `FEEDER_2SENSOR_1MOTOR`: It is a circular feeder with 2 sensors: one inductive and other as end of career. the move is a DC motor. The functionality is move one pice of store fed using gravity to other side that is detected with iductive sensor in order to be 
-picked up for other cell or robot.
+picked up for other cell or robot. Use the driver L298N.
+- `FEEDER_LINEAL_CONVEYOR`: It is conveyor with move clock and counter clock. It have a emergency stop button to stop all proceess physically. Use the driver L298N.
+
 ## DEPENDECIES
 - Platformio (IDE into VSCode recommended)
 - VSCode (Used it to upload the programe)
