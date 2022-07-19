@@ -1,27 +1,20 @@
 #include "CONFIG.h"
 #include "ROS_CONFIG.h"
 #include <string>
-
-#ifdef PID_CONTROL
-  #include "PID_CONTROL.h"
-#endif
-
-#ifdef ON_OFF_CONTROL
-  #include "ON_OFF_CONTROL.h"
-#endif
+#include "Arduino.h"
 
 #ifdef ESP32_38P
   #include <ESP32_AnalogWrite.h>
   #include <ESP32AnalogRead.h>
-  
+  #ifdef FEEDER_2SENSOR_1MOTOR
+    #include "ESP32_L298N.h"
+    L298N motorDevise(PWM_BITS, MOTOR_PWM, MOTOR_PIN1, MOTOR_PIN2);
+  #endif
 #endif
 
 
-
 String ip_board=" ";
-
-unsigned long prev_time_board=0;
-unsigned long time_board=0;
+int auxBand = 0;
 
 void setup()
 {
@@ -32,66 +25,87 @@ void setup()
       Serial.begin(115200);
     #endif
   #endif
-  #ifdef ESP32_38P
-    WiFi.mode(WIFI_STA);
-    WiFi.config(ip,gateway,subnet);
-    WiFi.begin(ssid, password);
-    while (WiFi.status() != WL_CONNECTED) 
-    {
-      Serial.println("Connecting...");
-      delay(500);
-    }
-    ip_board=String(WiFi.localIP());
-    Serial.println(WiFi.localIP()); 
-    
-    // Set the connection to rosserial socket server
-    nh.getHardware()->setConnection(server, serverPort);
-        
-    nh.initNode();
-    //length to variables of publisher
-
-
-
-
-    // Start publish
-    
-
-    //Start subscriptors
-   
-    
-
-    
-    //Init time to sample
-    prev_time_board =millis();
-
+  #include "INIT_ESP32_CONNECTION.h"
+  #include "INIT_ROS_CONNECTION.h"
+  //config digitalPIN
+  #ifdef FEEDER_2SENSOR_1MOTOR
+    pinMode(SENSOR_1, INPUT);
+    pinMode(SENSOR_2, INPUT);
+    motorDevise.stopMotor();
   #endif
 }
 
 
 void loop()
 {
-  #ifdef ESP32_38P
-    time_board = millis();
-    if(time_board-prev_time_board>=DT_BOARD)
-    {
-      prev_time_board=time_board;
-      
-
+  
+  //Actions
+  #ifdef FEEDER_2SENSOR_1MOTOR
+    int sensor1_state = digitalRead(SENSOR_1);
+    int sensor2_state = digitalRead(SENSOR_2);
+    state_msg.data=stateDevise;
+    if (sensor1_state==0){
+      sensor1_msg.data = 0;
+    }else{
+      sensor1_msg.data = 1;
     }
-      if (nh.connected()) 
-        {
-        
+    if (sensor2_state==0){
+      sensor1_msg.data = 0;
+    }else{
+      sensor1_msg.data = 1;
+    }
+  #endif
+  if (nh.connected()) {
+    #ifdef FEEDER_2SENSOR_1MOTOR
+      pDeviseSensor1.publish( &sensor1_msg );
+      pDeviseSensor2.publish( &sensor2_msg);
+      pDeviseState.publish( &state_msg);
+      if (state_msg.data>0){
+        if (state_msg.data == 1){
+          if ((sensor1_state == 1 && auxBand== 0) || sensor1_state==0){
+            motorDevise.moveMotor(VEL_PWM);
+            if (auxBand==0){
+              delay(DELAY_INIT_MOTOR);
+              auxBand==1;
+            }
+          }else{
+            motorDevise.stopMotor();
+            state_msg.data = 0;
+          }
+        }else if (state_msg.data == 2){
+          if (state_msg.data == 1){
+          if ((sensor1_state == 1 && auxBand== 0) || sensor1_state==0){
+            motorDevise.backMotor(VEL_PWM);
+            if (auxBand==0){
+              delay(DELAY_INIT_MOTOR);
+              auxBand==1;
+            }
+          }else{
+            motorDevise.stopMotor();
+            state_msg.data = 0;
+          }
+        }else if (state_msg.data == 3 || state_msg.data == 4){
+          if (sensor1_state == 1 && sensor2_state == 1 ){
+            motorDevise.stopMotor();
+            state_msg.data = 4;
+          }else{
+            motorDevise.moveMotor(VEL_PWM);
+            state_msg.data = 3;
+          }
+        }
+      }else{
+        motorDevise.stopMotor();
+      }
+    #endif
           
 
-        } else {
-          Serial.println("Not Connected SERVER");
-
-        }
-        //Actions
-        
-
-        
-        nh.spinOnce();
-        delay(DT_BOARD/10);
-   #endif
+  }else{
+    Serial.println("Not Connected SERVER");
+    #ifdef FEEDER_2SENSOR_1MOTOR
+      motorDevise.stopMotor();
+      state_msg.data=0;
+    #endif
+  }      
+  nh.spinOnce();
+  delay(DT_BOARD/10);
 }

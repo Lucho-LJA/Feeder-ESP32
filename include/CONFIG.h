@@ -42,15 +42,16 @@
         Define the default velocity PWM-10BITS (0-1024)
         Define PINS
     */
-
-    #ifdef ESP32_38P
-        #define VEL_PWM 1023
-        #ifdef FEEDER_2SENSOR_1MOTOR
+    #ifdef FEEDER_2SENSOR_1MOTOR
+        #define DELAY_INIT_MOTOR 500
+        #ifdef ESP32_38P
+            #define VEL_PWM 1023
             #define SENSOR_1 4
             #define SENSOR_2 15
             #define MOTOR_PWM 14
-            float setMotor=VEL_PWM;
-            int stateDevise=0;
+            #define MOTOR_PIN1 25
+            #define MOTOR_PIN2 26
+            
         #endif
     #endif
     
@@ -74,6 +75,9 @@
         #define PWM_MIN 0
        // #define CORE_NUM_INTERRUPT 32
     #endif
-
+    #ifdef FEEDER_2SENSOR_1MOTOR
+        float setMotor=VEL_PWM;
+        int stateDevise=0;
+    #endif
 
 #endif

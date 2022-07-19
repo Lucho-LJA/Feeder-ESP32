@@ -3,12 +3,8 @@
     #include "CONFIG.h"
     #include "Arduino.h"
     #include "ros.h"
-    #include "std_msgs/String.h"
     #include "std_msgs/Int8.h"
     #include "std_msgs/Int16.h"
-    #include "std_msgs/Float32MultiArray.h"
-    #include "std_msgs/Int32MultiArray.h"
-    #include "std_msgs/Char.h"
     #include <string>
 
     const char* ssid     = ROUTER_SSID;
@@ -47,10 +43,12 @@
         //MAKE VARIABLES TO PUBLISHERS
         std_msgs::Int8 sensor1_msg;
         std_msgs::Int8 sensor2_msg;
+        std_msgs::Int8 state_msg;
 
         //BUILD PUBLISHER
         ros::Publisher pDeviseSensor1(pSensor1.c_str(), &sensor1_msg);
         ros::Publisher pDeviseSensor2(pSensor2.c_str(), &sensor2_msg);
+        ros::Publisher pDeviseState(pState.c_str(), &state_msg);
 
         //BUILD SUBSCRIPTORS
         ros::Subscriber<std_msgs::Int16> sDeviseSetMotor(sVel.c_str(),&ReadSetPoint);
