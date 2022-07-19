@@ -1,0 +1,3 @@
+[submodule "lib/ESP32_L298N"]
+	path = lib/ESP32_L298N
+	url = git@github.com:Lucho-LJA/ESP32_L298N.git
