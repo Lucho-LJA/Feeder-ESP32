@@ -1,9 +1,12 @@
-# RoundedFeeder-ESP32
+# Feeder-ESP32
 The project is about the code to Control a circular feeder with ESP32 and ROS. It is the code of Board, destined to [ESP32 with 38 pins](https://uelectronics.com/producto/esp32-38-pines-esp-wroom-32/) and following the [ESP32 documentation](https://randomnerdtutorials.com/esp32-pinout-reference-gpios/).
 
 ## GENERAL DESCRIPTION
 The code is used to cominicate with ROS using rosserial_python with ROS distro: Noetic. The project use plataformio framwork and VSCode. All libraries are open source and they have theirs respective licences.
 
+Feeder have the types:
+- `FEEDER_2SENSOR_1MOTOR`: It is a circular feeder with 2 sensors: one inductive and other as end of career. the move is a DC motor. The functionality is move one pice of store fed using gravity to other side that is detected with iductive sensor in order to be 
+picked up for other cell or robot.
 ## DEPENDECIES
 - Platformio (IDE into VSCode recommended)
 - VSCode (Used it to upload the programe)
@@ -14,7 +17,14 @@ The code is used to cominicate with ROS using rosserial_python with ROS distro: 
 - rosserial_python package (to communication with ROS enviroment)
 
 ## INSTRUCTIONS
-
+- Clone the repository with:
+    ```bash
+    git clone --verbose <link of git>
+    ```
+- Configure the params into the file [CONFIG.H](/include/CONFIG.h)
+- Load the code to ESP32
+- Run `roscore` and [rosserial_python](#instructions-to-install-and-run-rosserialpython)
+- ready
 
 ## Instructions to install and run rosserial_python
 - update your repositories with: `sudo apt update`
@@ -61,3 +71,8 @@ sudo udevadm trigger
 - Change Monitor serial of platformio
     - Go to file: `platformio.ini`
     - Choose a enviroment and add: `monitor_speed = 115200` 
+
+- When you use several nodes of `rosserial_pyton package` and the name generate a error, you must run the node with diferent node name, example:
+```bash
+    rosrun rosserial_python serial_node.py __name:=<"name of node"> _port:=tcp _tcp_port:=<port>
+```
