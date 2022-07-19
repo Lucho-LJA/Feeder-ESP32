@@ -15,15 +15,23 @@
         ROS_SERVER  : IP of machine where run roscore (server)
         ROS_SERVER_PORT : PORT where run ROS_SERVER (It is configured at ROS_SERVER package)
     */
-    #define ROBOT_NAME "scara1"
+    #define DEVISE_NAME "feeder"
     #define ROUTER_SSID "NETLIFE"
     #define ROUTER_PASWORD "NOITA123"
     #define IP_ESP32 192,168,0,200    //Use <,> and not <.> 
     #define IP_GATEWAY 192,168,0,1    //Use <,> and not <.> 
     #define IP_SUBNET 255,255,255,0   //Use <,> and not <.> 
     #define ROS_SERVER 192,168,0,197   //Use <,> and not <.> 
-    #define ROS_SERVER_PORT 11411
+    #define ROS_SERVER_PORT 11420
 
+    /*
+        DEVISE CONFIGURATION
+        Uncomment the option
+            FEEDER_2SENSOR_1MOTOR : Feeder with motor that turn to move a element. It have
+                                    2 sensor ON/OFF to detec piece and control the turn.
+                                    Feeder use one motor DC with control driver.
+    */
+    #define FEEDER_2SENSOR_1MOTOR
     /*
         SELECT BOARD DEVELOPMENT
         Uncomment the type of board
@@ -32,16 +40,16 @@
     #define ESP32_38P
     /*
         Define the default velocity PWM-10BITS (0-1024)
-        Define the defult POSITION ANGLE
-        Define max and min angle
-        Define pins of board
+        Define PINS
     */
-    
-
-
 
     #ifdef ESP32_38P
-
+        #define VEL_PWM 1023
+        #ifdef FEEDER_2SENSOR_1MOTOR
+            #define SENSOR_1 4
+            #define SENSOR_2 15
+            #define MOTOR_PWM 14
+        #endif
     #endif
     
     
