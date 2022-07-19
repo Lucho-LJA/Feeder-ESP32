@@ -10,6 +10,10 @@
     #include "ESP32_L298N.h"
     L298N motorDevise(PWM_BITS, MOTOR_PWM, MOTOR_PIN1, MOTOR_PIN2);
   #endif
+  #ifdef FEEDER_LINEAL_CONVEYOR
+    #include "ESP32_L298N.h"
+    L298N motorDevise(PWM_BITS, MOTOR_PWM, MOTOR_PIN1, MOTOR_PIN2);
+  #endif
 #endif
 
 
@@ -18,13 +22,6 @@ int auxBand = 0;
 
 void setup()
 {
-
-  #ifndef _INIT_SERIAL_
-    #define _INIT_SERIAL_
-    #ifdef ESP32_38P
-      Serial.begin(115200);
-    #endif
-  #endif
   #include "INIT_ESP32_CONNECTION.h"
   #include "INIT_ROS_CONNECTION.h"
   //config digitalPIN
@@ -33,12 +30,14 @@ void setup()
     pinMode(SENSOR_2, INPUT);
     motorDevise.stopMotor();
   #endif
+  #ifdef FEEDER_LINEAL_CONVEYOR
+    pinMode(STOP_EMERG, INPUT);
+    motorDevise.stopMotor();
+  #endif
 }
 
 
-void loop()
-{
-  
+void loop(){
   //Actions
   #ifdef FEEDER_2SENSOR_1MOTOR
     int sensor1_state = digitalRead(SENSOR_1);
@@ -55,35 +54,44 @@ void loop()
       sensor1_msg.data = 1;
     }
   #endif
-  if (nh.connected()) {
+  #ifdef FEEDER_LINEAL_CONVEYOR
+    int stop_button = digitalRead(STOP_EMERG);
+    if (stop_button==1){
+      state_msg.data = 3;
+    }else{
+      state_msg.data=stateDevise;
+    }
+  #endif
+  if (nh.connected()){
     #ifdef FEEDER_2SENSOR_1MOTOR
       pDeviseSensor1.publish( &sensor1_msg );
       pDeviseSensor2.publish( &sensor2_msg);
       pDeviseState.publish( &state_msg);
       if (state_msg.data>0){
         if (state_msg.data == 1){
-          if ((sensor1_state == 1 && auxBand== 0) || sensor1_state==0){
+          if ((sensor2_state == 1 && auxBand== 0) || sensor2_state==0){
             motorDevise.moveMotor(VEL_PWM);
             if (auxBand==0){
               delay(DELAY_INIT_MOTOR);
-              auxBand==1;
+              auxBand=1;
             }
           }else{
             motorDevise.stopMotor();
             state_msg.data = 0;
+            auxBand=0;
           }
         }else if (state_msg.data == 2){
-          if (state_msg.data == 1){
-          if ((sensor1_state == 1 && auxBand== 0) || sensor1_state==0){
-            motorDevise.backMotor(VEL_PWM);
-            if (auxBand==0){
-              delay(DELAY_INIT_MOTOR);
-              auxBand==1;
+            if ((sensor2_state == 1 && auxBand== 0) || sensor2_state==0){
+              motorDevise.backMotor(VEL_PWM);
+              if (auxBand==0){
+                delay(DELAY_INIT_MOTOR);
+                auxBand=1;
+              }
+            }else{
+              motorDevise.stopMotor();
+              state_msg.data = 0;
+              auxBand=0;
             }
-          }else{
-            motorDevise.stopMotor();
-            state_msg.data = 0;
-          }
         }else if (state_msg.data == 3 || state_msg.data == 4){
           if (sensor1_state == 1 && sensor2_state == 1 ){
             motorDevise.stopMotor();
@@ -97,11 +105,26 @@ void loop()
         motorDevise.stopMotor();
       }
     #endif
-          
 
+    #ifdef FEEDER_LINEAL_CONVEYOR
+      pDeviseState.publish( &state_msg);
+      if (state_msg.data>0 && state_msg.data != 3){
+        if (state_msg.data == 1){
+          motorDevise.moveMotor(VEL_PWM);
+        }else if (state_msg.data == 2){
+          motorDevise.backMotor(VEL_PWM);
+        }
+      }else{
+        motorDevise.stopMotor();
+      }
+    #endif 
   }else{
     Serial.println("Not Connected SERVER");
     #ifdef FEEDER_2SENSOR_1MOTOR
+      motorDevise.stopMotor();
+      state_msg.data=0;
+    #endif
+    #ifdef FEEDER_LINEAL_CONVEYOR
       motorDevise.stopMotor();
       state_msg.data=0;
     #endif

@@ -5,8 +5,13 @@
     #include "Arduino.h"
     #include <string>
     
-
-   #ifdef ESP32_38P
+    #ifndef _INIT_SERIAL_
+      #define _INIT_SERIAL_
+      #ifdef ESP32_38P
+        Serial.begin(115200);
+      #endif
+    #endif
+    #ifdef ESP32_38P
     WiFi.mode(WIFI_STA);
     WiFi.config(ip,gateway,subnet);
     WiFi.begin(ssid, password);

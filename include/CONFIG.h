@@ -30,8 +30,10 @@
             FEEDER_2SENSOR_1MOTOR : Feeder with motor that turn to move a element. It have
                                     2 sensor ON/OFF to detec piece and control the turn.
                                     Feeder use one motor DC with control driver.
+            FEEDER_LINEAL_CONVEYOR : Fedder using simple conveyor without sensors
     */
     #define FEEDER_2SENSOR_1MOTOR
+    //#define FEEDER_LINEAL_CONVEYOR
     /*
         SELECT BOARD DEVELOPMENT
         Uncomment the type of board
@@ -44,15 +46,19 @@
     */
     #ifdef FEEDER_2SENSOR_1MOTOR
         #define DELAY_INIT_MOTOR 500
-        #ifdef ESP32_38P
-            #define VEL_PWM 1023
-            #define SENSOR_1 4
-            #define SENSOR_2 15
-            #define MOTOR_PWM 14
-            #define MOTOR_PIN1 25
-            #define MOTOR_PIN2 26
-            
-        #endif
+        #define VEL_PWM 1023
+        #define SENSOR_1 4
+        #define SENSOR_2 15
+        #define MOTOR_PWM 14
+        #define MOTOR_PIN1 25
+        #define MOTOR_PIN2 26
+    #endif
+    #ifdef FEEDER_LINEAL_CONVEYOR
+        #define VEL_PWM 1023
+        #define MOTOR_PWM 14
+        #define MOTOR_PIN1 25
+        #define MOTOR_PIN2 26
+        #define STOP_EMERG 13
     #endif
     
     
@@ -76,6 +82,10 @@
        // #define CORE_NUM_INTERRUPT 32
     #endif
     #ifdef FEEDER_2SENSOR_1MOTOR
+        float setMotor=VEL_PWM;
+        int stateDevise=0;
+    #endif
+    #ifdef FEEDER_LINEAL_CONVEYOR
         float setMotor=VEL_PWM;
         int stateDevise=0;
     #endif

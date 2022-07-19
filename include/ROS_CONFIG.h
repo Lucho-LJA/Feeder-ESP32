@@ -55,5 +55,33 @@
         ros::Subscriber<std_msgs::Int8> sDeviseState(sState.c_str(),&ReadState);
 
     #endif
+    #ifdef FEEDER_LINEAL_CONVEYOR
+        // VARIABLES TO TOPICS
+        String pState=name_robot+"/get_state";
+        String sState=name_robot+"/set_state";
+        String sVel=name_robot+"/set_vel";
+        
+
+        //FUNCTIONS TO SYBSCRIPTORS
+        void ReadSetPoint( const std_msgs::Int16& msg){
+            setMotor= msg.data;
+        }
+        void ReadState( const std_msgs::Int8& msg){
+            stateDevise= msg.data;
+        }
+        
+
+        //MAKE VARIABLES TO PUBLISHERS
+        std_msgs::Int8 stop_msg;
+        std_msgs::Int8 state_msg;
+
+        //BUILD PUBLISHER
+        ros::Publisher pDeviseState(pState.c_str(), &state_msg);
+
+        //BUILD SUBSCRIPTORS
+        ros::Subscriber<std_msgs::Int16> sDeviseSetMotor(sVel.c_str(),&ReadSetPoint);
+        ros::Subscriber<std_msgs::Int8> sDeviseState(sState.c_str(),&ReadState);
+
+    #endif
     
 #endif
