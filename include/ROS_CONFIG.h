@@ -24,8 +24,8 @@
     String name_robot = DEVISE_NAME;
     #ifdef FEEDER_2SENSOR_1MOTOR
         // VARIABLES TO TOPICS
-        String pSensor1=name_robot+"/get_sensor_piece";
-        String pSensor2=name_robot+"/get_sensor_turn";
+        String pSensor1=name_robot+"/get_sensor_turn";
+        String pSensor2=name_robot+"/get_sensor_piece";
         String pState=name_robot+"/get_state";
         String sState=name_robot+"/set_state";
         String sVel=name_robot+"/set_vel";

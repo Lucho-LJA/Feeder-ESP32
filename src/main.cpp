@@ -19,14 +19,23 @@
 
 String ip_board=" ";
 int auxBand = 0;
-
+//Function to interupter
+#ifdef FEEDER_2SENSOR_1MOTOR
+  int sensor1_state = 0;
+  void IRAM_ATTR isr() {
+    if (sensor1_state == 0){
+      sensor1_state =1;
+    }
+  }
+#endif
 void setup()
 {
   #include "INIT_ESP32_CONNECTION.h"
   #include "INIT_ROS_CONNECTION.h"
   //config digitalPIN
   #ifdef FEEDER_2SENSOR_1MOTOR
-    pinMode(SENSOR_1, INPUT);
+    pinMode(SENSOR_1, INPUT_PULLUP);
+    attachInterrupt(SENSOR_1, isr, FALLING);
     pinMode(SENSOR_2, INPUT);
     motorDevise.stopMotor();
   #endif
@@ -40,10 +49,9 @@ void setup()
 void loop(){
   //Actions
   #ifdef FEEDER_2SENSOR_1MOTOR
-    int sensor1_state = digitalRead(SENSOR_1);
     int sensor2_state = digitalRead(SENSOR_2);
     state_msg.data=stateDevise;
-    if (sensor1_state==0){
+    if (digitalRead(SENSOR_1)==0){
       sensor1_msg.data = 0;
     }else{
       sensor1_msg.data = 1;
@@ -69,35 +77,31 @@ void loop(){
       pDeviseState.publish( &state_msg);
       if (state_msg.data>0){
         if (state_msg.data == 1){
-          if ((sensor2_state == 1 && auxBand== 0) || sensor2_state==0){
+          if (sensor1_state==0){
             motorDevise.moveMotor(VEL_PWM);
-            if (auxBand==0){
-              delay(DELAY_INIT_MOTOR);
-              auxBand=1;
-            }
           }else{
             motorDevise.stopMotor();
             state_msg.data = 0;
-            auxBand=0;
+            sensor1_state=0;
           }
         }else if (state_msg.data == 2){
-            if ((sensor2_state == 1 && auxBand== 0) || sensor2_state==0){
+            if (sensor1_state==0){
               motorDevise.backMotor(VEL_PWM);
-              if (auxBand==0){
-                delay(DELAY_INIT_MOTOR);
-                auxBand=1;
-              }
             }else{
               motorDevise.stopMotor();
               state_msg.data = 0;
-              auxBand=0;
+              sensor1_state=0;
             }
         }else if (state_msg.data == 3 || state_msg.data == 4){
-          if (sensor1_state == 1 && sensor2_state == 1 ){
+          if (sensor1_state==0 && state_msg.data == 3){
+            motorDevise.stopMotor();
+          }
+          if (sensor1_state==1 && state_msg.data == 3 && sensor2_state == 1){
             motorDevise.stopMotor();
             state_msg.data = 4;
-          }else{
-            motorDevise.moveMotor(VEL_PWM);
+          }
+          if (sensor1_state == 1 && state_msg.data == 3 && sensor2_state == 0 ){
+            sensor1_state == 0;
             state_msg.data = 3;
           }
         }
