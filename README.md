@@ -19,7 +19,7 @@ picked up for other cell or robot.
 ## INSTRUCTIONS
 - Clone the repository with:
     ```bash
-    git clone --verbose <link of git>
+    git clone --verbose https://github.com/Lucho-LJA/Feeder-ESP32.git
     ```
 - Configure the params into the file [CONFIG.H](/include/CONFIG.h)
 - Load the code to ESP32
