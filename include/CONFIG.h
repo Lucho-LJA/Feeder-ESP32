@@ -49,6 +49,8 @@
             #define SENSOR_1 4
             #define SENSOR_2 15
             #define MOTOR_PWM 14
+            float setMotor=VEL_PWM;
+            int stateDevise=0;
         #endif
     #endif
     
