@@ -22,6 +22,8 @@ picked up for other cell or robot. Use the driver L298N.
 - Clone the repository with:
     ```bash
     git clone --verbose https://github.com/Lucho-LJA/Feeder-ESP32.git
+    git submodule init
+    git submodule update
     ```
 - Configure the params into the file [CONFIG.H](/include/CONFIG.h)
 - Load the code to ESP32
